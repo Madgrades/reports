@@ -1,0 +1,15 @@
+# Development dependencies
+-r requirements.txt
+
+# Code quality and linting
+ruff>=0.8.0           # Fast linter and formatter (replaces flake8, black, isort)
+mypy>=1.13.0          # Type checking
+
+# Testing
+pytest>=8.3.0         # Testing framework
+pytest-cov>=6.0.0     # Coverage reporting
+pytest-mock>=3.14.0   # Mocking support
+
+# Type stubs for libraries
+types-Pillow>=10.0.0
+pandas-stubs>=2.0.0
