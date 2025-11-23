@@ -6,6 +6,7 @@ bash scripts/install-system-deps.sh
 
 # Install Python dependencies
 pip install --no-cache-dir -r requirements.txt
+pip install --no-cache-dir -r requirements-dev.txt
 
 # Install the package in editable mode
 pip install -e .
