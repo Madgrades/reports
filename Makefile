@@ -1,4 +1,4 @@
-.PHONY: help install test lint format type-check clean validate
+.PHONY: help install test lint format type-check clean validate extract
 
 help:  ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -21,6 +21,9 @@ type-check:  ## Run type checker
 
 validate:  ## Validate that all PDFs have been processed (for CI)
 	extract-tables -f csv -r --validate data csv
+
+extract:  ## Extract tables from PDFs
+	extract-tables -f csv -r data csv
 
 check: lint type-check test validate  ## Run all checks (lint, type-check, test, validate)
 
