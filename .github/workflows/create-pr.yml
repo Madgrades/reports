@@ -1,0 +1,65 @@
+name: Create PR for Submodule Update
+
+on:
+  # Allow manual trigger
+  workflow_dispatch:
+  
+  # Triggered by the submodule repository
+  repository_dispatch:
+    types: [submodule-updated]
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install system dependencies
+      run: bash scripts/install-system-deps.sh
+    
+    - name: Install Python dependencies
+      run: make install
+    
+    - name: Check for submodule updates
+      id: check
+      run: |
+        git submodule update --remote data
+        if git diff --quiet; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+          echo "No submodule updates found"
+        else
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Submodule updates detected"
+        fi
+    
+    - name: Extract tables from PDFs
+      if: steps.check.outputs.has_changes == 'true'
+      run: make extract
+    
+    - name: Run all checks
+      if: steps.check.outputs.has_changes == 'true'
+      run: make check
+    
+    - name: Create Pull Request
+      if: steps.check.outputs.has_changes == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        commit-message: "Update data submodule to latest commit"
+        title: "Update data submodule"
+        body: |
+          This PR updates the `data` submodule to the latest commit.
+          
+          Triggered by: ${{ github.event_name }}
+          
+          All extractions and checks have been run successfully.
+        branch: update-data-submodule
+        delete-branch: true
